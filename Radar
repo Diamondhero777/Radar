@@ -1,0 +1,32 @@
+local function sendToDiscord(webhookUrl, message)
+  -- The JSON payload to send
+  local payload = textutils.serializeJSON({ content = message })
+
+  -- Perform the HTTP POST request
+  local headers = {
+      ["Content-Type"] = "application/json",
+      ["User-Agent"] = "ComputerCraft/1.7.10"  -- Add a User-Agent header to identify the client
+  }
+  local response, httpError = http.post(webhookUrl, payload, headers)
+
+  -- Check if the request was successful
+  if response then
+      print("Message sent successfully!")
+      response.close()
+  else
+      print("Failed to send message. HTTP Error: ".. tostring(httpError))
+  end
+end
+
+local webhookUrl = "<YOURWEBHOOKHERE>"
+
+while true do
+  local sensor = peripheral.wrap("top")
+  local players = sensor.getPlayers()
+  if players then
+    local message = "Players Detected: " .. textutils.serialize(players):gsub("\n","")
+    sendToDiscord(webhookUrl, message)
+    print(message)
+  end
+  os.sleep(5)
+end
